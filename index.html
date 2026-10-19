@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cozy Recipes 溫馨食譜空間</title>
+    <style>
+        /* ==========================================
+           1. 視覺與 UI 設計參數 (Design Tokens)
+           ========================================== */
+        :root {
+            --bg-color: #FDFBF7;        /* 米白色背景 */
+            --surface-color: #FFFFFF;   /* 純白卡片 */
+            --primary-accent: #E07A5F;  /* 暖陶橘色 */
+            --primary-hover: #C9644A;   /* 暖陶橘 Hover */
+            --secondary-accent: #F2CC8F;/* 柔和奶油黃 */
+            --text-primary: #3D405B;    /* 深靛藍偏棕文字 */
+            --text-secondary: #8E8D8A;  /* 暖灰色文字 */
+            --border-radius-lg: 16px;   /* 大圓角 */
+            --border-radius-sm: 999px;  /* 膠囊全圓角 */
+            --shadow-normal: 0 8px 24px rgba(61, 64, 91, 0.06); /* 基礎陰影 */
+            --shadow-hover: 0 12px 32px rgba(61, 64, 91, 0.12);  /* 懸停陰影 */
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* 重設與基礎設定 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ==========================================
+           2. 頂部導覽列 (Header)
+           ========================================== */
+        header {
+            background-color: var(--surface-color);
+            box-shadow: 0 2px 10px rgba(61, 64, 91, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-accent);
+            text-decoration: none;
+        }
+
+        .logo svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--primary-accent);
+        }
+
+        /* 搜尋列 */
+        .search-bar {
+            position: relative;
+            max-width: 300px;
+            width: 100%;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1.5px solid #EAE6DF;
+            border-radius: var(--border-radius-sm);
+            font-size: 14px;
+            color: var(--text-primary);
+            background-color: #FCFBF9;
+            transition: var(--transition-smooth);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+            background-color: #FFF;
+        }
+
+        .search-bar svg {
+            position: absolute;
+            left: 14px;
+            top: 50px;
+            transform: translateY(-16px);
+            width: 18px;
+            height: 18px;
+            fill: var(--text-secondary);
+        }
+
+        /* ==========================================
+           3. 精選主視覺 (Hero Section)
+           ========================================== */
+        .hero-section {
+            margin: 30px 0;
+            border-radius: 24px;
+            overflow: hidden;
+            background-color: #FFFDF9;
+            box-shadow: var(--shadow-normal);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .hero-section {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        .hero-content {
+            flex: 1.2;
+            padding: 40px;
+        }
+
+        .hero-content h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .hero-content p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--primary-accent);
+            color: #FFF;
+            padding: 12px 28px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .hero-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            flex: 1.5;
+            min-height: 250px;
+            background-size: cover;
+            background-position: center;
+            align-self: stretch;
+        }
+
+        /* ==========================================
+           4. 分類導覽與食譜網格 (Categories & Grid)
+           ========================================== */
+        .categories {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .categories::-webkit-scrollbar {
+            height: 4px;
+        }
+        .categories::-webkit-scrollbar-thumb {
+            background-color: rgba(61, 64, 91, 0.1);
+            border-radius: 4px;
+        }
+
+        .category-btn {
+            background-color: #F0EDE6;
+            color: var(--text-primary);
+            border: none;
+            padding: 10px 22px;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition-smooth);
+        }
+
+        .category-btn.active, .category-btn:hover {
+            background-color: var(--secondary-accent);
+            color: var(--text-primary);
+        }
+
+        /* 食譜卡片網格 */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .recipe-card {
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-normal);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(234, 230, 223, 0.5);
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-img-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 65%; /* 比例約 3:2 */
+            overflow: hidden;
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-smooth);
+        }
+
+        .recipe-card:hover .card-img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .card-tag {
+            font-size: 11px;
+            background-color: #FFF2E6;
+            color: var(--primary-accent);
+            padding: 4px 10px;
+            border-radius: var(--border-radius-sm);
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .card-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .info-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .info-item svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--text-secondary);
+        }
+
+        /* ==========================================
+           5. 彈出詳細視窗 (Modal)
+           ========================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(61, 64, 91, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background-color: var(--surface-color);
+            width: 90%;
+            max-width: 680px;
+            max-height: 85vh;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(61, 64, 91, 0.15);
+            overflow-y: auto;
+            position: relative;
+            transform: translateY(30px);
+            transition: var(--transition-smooth);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: var(--transition-smooth);
+        }
+
+        .modal-close:hover {
+            background-color: var(--primary-accent);
+        }
+        .modal-close:hover svg {
+            fill: #FFF;
+        }
+        .modal-close svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--text-primary);
+        }
+
+        .modal-cover {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        /* 備料計算器 */
+        .servings-calc {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #FAF6F0;
+            padding: 16px 20px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 24px;
+        }
+
+        .calc-label {
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .calc-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .calc-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background-color: var(--primary-accent);
+            color: #FFF;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .calc-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .calc-value {
+            font-size: 18px;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* 兩欄配置 */
+        .modal-sections {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 576px) {
+            .modal-sections {
+                grid-template-columns: 1.2fr 1.8fr;
+            }
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            border-bottom: 2px solid #F0EDE6;
+            padding-bottom: 6px;
+        }
+
+        /* 食材確認清單 */
+        .ingredients-list {
+            list-style: none;
+        }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #EAE6DF;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .ingredient-item input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-accent);
+        }
+
+        .ingredient-item.checked span {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+
+        /* 步驟清單 */
+        .steps-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .step-item {
+            position: relative;
+            padding-left: 36px;
+            margin-bottom: 18px;
+        }
+
+        .step-item::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--secondary-accent);
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部導覽列 -->
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-4h2v4zm0-6h-2V7h2v3z"/>
+                </svg>
+                <span>Cozy Recipes 溫馨食譜</span>
+            </a>
+            <div class="search-bar">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="搜尋雞胸肉、親子丼...">
+            </div>
+        </div>
+    </header>
+
+    <!-- 精選主視覺 Section -->
+    <section class="container">
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>今天想用快煮鍋<br>變出什麼魔法？</h1>
+                <p>從家常便飯到增肌減脂，為你準備的日常暖心食譜。不管是外宿、快煮鍋、還是健身備料，都能輕鬆搞定！</p>
+                <button class="hero-btn" onclick="scrollToRecipes()">
+                    探索今日食譜
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+            <!-- ★ 主視覺圖路徑已更新為 ./assets/pic1.jpg -->
+            <div class="hero-image" style="background-image: url('./assets/pic1.jpg');"></div>
+        </div>
+    </section>
+
+    <!-- 分類按鈕與食譜網格 -->
+    <main class="container" id="recipe-gallery">
+        <div class="categories" id="categories-container">
+            <button class="category-btn active" data-category="all">全部</button>
+            <button class="category-btn" data-category="quick">快煮鍋料理</button>
+            <button class="category-btn" data-category="fitness">增肌減脂</button>
+            <button class="category-btn" data-category="fast">15分鐘上桌</button>
+        </div>
+
+        <div class="recipe-grid" id="recipe-grid">
+            <!-- 由 JavaScript 動態填入 -->
+        </div>
+    </main>
+
+    <!-- 彈出詳細視窗 -->
+    <div class="modal-overlay" id="recipe-modal">
+        <div class="modal-box">
+            <button class="modal-close" id="close-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+            <img class="modal-cover" id="modal-cover" src="" alt="食譜封面">
+            <div class="modal-body">
+                <div class="modal-tags" id="modal-tags"></div>
+                <h2 class="modal-title" id="modal-title"></h2>
+                
+                <!-- 份量計算器 -->
+                <div class="servings-calc">
+                    <span class="calc-label">備料份量計算機</span>
+                    <div class="calc-controls">
+                        <button class="calc-btn" id="calc-minus">-</button>
+                        <span class="calc-value" id="calc-servings">1 人份</span>
+                        <button class="calc-btn" id="calc-plus">+</button>
+                    </div>
+                </div>
+
+                <!-- 食材與步驟 -->
+                <div class="modal-sections">
+                    <div>
+                        <h3 class="section-title">準備食材</h3>
+                        <ul class="ingredients-list" id="ingredients-list">
+                            <!-- JS 動態帶入，支援點擊打勾 -->
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="section-title">料理步驟</h3>
+                        <ol class="steps-list" id="steps-list">
+                            <!-- JS 動態帶入 -->
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+       6. JavaScript 功能邏輯 
+       ========================================== -->
+    <script>
+        // 預設食譜資料庫
+        const recipes = [
+            {
+                id: 1,
+                title: "快煮鍋滑蛋親子丼",
+                category: "quick",
+                time: "15 分鐘",
+                servings: 1,
+                tag: "快煮鍋料理",
+                secondaryTags: ["快速上桌", "外宿推薦"],
+                // ★ 第一張食譜的圖片連結已修正
+                image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&q=80&w=600",
+                ingredients: [
+                    { name: "雞腿肉 (g)", baseQty: 120 },
+                    { name: "洋蔥 (顆)", baseQty: 0.25 },
+                    { name: "雞蛋 (顆)", baseQty: 1 },
+                    { name: "醬油 (大匙)", baseQty: 1.5 },
+                    { name: "味醂 (大匙)", baseQty: 1.5 },
+                    { name: "白飯 (碗)", baseQty: 1 }
+                ],
+                steps: [
+                    "將洋蔥切絲，雞腿肉切成一口大小。",
+                    "在快煮鍋中加入醬油、味醂與 50ml 水，煮滾後放入洋蔥絲與雞腿肉。",
+                    "蓋上鍋蓋煮約 5-6 分鐘，確認雞肉熟透。",
+                    "淋上打散的蛋液，蓋上鍋蓋悶 15 秒後即可起鍋覆蓋在白飯上。"
+                ]
+            },
+            {
+                id: 2,
+                title: "香煎義式嫩胸雞肉",
+                category: "fitness",
+                time: "20 分鐘",
+                servings: 1,
+                tag: "增肌減脂",
+                secondaryTags: ["高蛋白", "低脂"],
+                image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&q=80&w=600",
+                ingredients: [
+                    { name: "去皮雞胸肉 (g)", baseQty: 180 },
+                    { name: "橄欖油 (小匙)", baseQty: 1 },
+                    { name: "義式香草 (適量)", baseQty: 1 },
+                    { name: "蒜頭 (瓣)", baseQty: 1 },
+                    { name: "鹽巴與胡椒 (適量)", baseQty: 1 }
+                ],
+                steps: [
+                    "雞胸肉橫剖不切斷（蝴蝶切），用刀背稍微拍打。加入鹽、胡椒與義式香草醃製 10 分鐘。",
+                    "平底鍋熱鍋，倒入橄欖油，下蒜頭爆香。",
+                    "放入雞胸肉，中火煎 3 分鐘至金黃色，翻面再煎 2.5 分鐘。",
+                    "關火，蓋上鍋蓋利用餘溫悶 5 分鐘，能鎖住肉汁，切片即可享用。"
+                ]
+            },
+            {
+                id: 3,
+                title: "懶人電鍋番茄燉飯",
+                category: "fast",
+                time: "15 分鐘",
+                servings: 1,
+                tag: "15分鐘上桌",
+                secondaryTags: ["一鍋搞定", "素食友善"],
+                image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&q=80&w=600",
+                ingredients: [
+                    { name: "白米 (杯)", baseQty: 0.5 },
+                    { name: "大番茄 (顆)", baseQty: 1 },
+                    { name: "綜合菇類 (g)", baseQty: 40 },
+                    { name: "玉米粒 (大匙)", baseQty: 1 },
+                    { name: "黑胡椒與鹽巴 (適量)", baseQty: 1 },
+                    { name: "橄欖油 (小匙)", baseQty: 0.5 }
+                ],
+                steps: [
+                    "白米洗淨放入電鍋內膽，加入比平常少一點的水（因番茄會出水）。",
+                    "將整顆番茄去蒂放在中央，周圍鋪上菇類、玉米粒。",
+                    "淋上橄欖油、鹽巴與胡椒調味。",
+                    "按下電鍋開關。跳起後，將番茄壓碎並與米飯徹底拌勻即可。"
+                ]
+            },
+            {
+                id: 4,
+                title: "快煮鍋微辣酸湯魚",
+                category: "quick",
+                time: "25 分鐘",
+                servings: 1,
+                tag: "快煮鍋料理",
+                secondaryTags: ["餐廳還原", "豐富飽足"],
+                image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&q=80&w=600",
+                ingredients: [
+                    { name: "鯛魚片 (g)", baseQty: 150 },
+                    { name: "酸菜 (g)", baseQty: 50 },
+                    { name: "辣椒 (根)", baseQty: 0.5 },
+                    { name: "薑片 (片)", baseQty: 2 },
+                    { name: "金針菇 (g)", baseQty: 50 },
+                    { name: "米酒 (大匙)", baseQty: 1 }
+                ],
+                steps: [
+                    "鯛魚片切斜片，用少許米酒和胡椒粉醃製。酸菜切小段洗淨。",
+                    "快煮鍋中加入少許油，放入薑片、辣椒和酸菜炒出香味。",
+                    "加入 400ml 水煮沸，下金針菇，蓋上蓋子煮 3 分鐘。",
+                    "最後放入鯛魚片，煮約 2 分鐘至魚片變白熟透即可起鍋。"
+                ]
+            }
+        ];
+
+        let currentRecipe = null;
+        let currentServings = 1;
+
+        // DOM elements
+        const recipeGrid = document.getElementById('recipe-grid');
+        const categoriesContainer = document.getElementById('categories-container');
+        const searchInput = document.getElementById('search-input');
+        const modal = document.getElementById('recipe-modal');
+        const closeBtn = document.getElementById('close-btn');
+
+        // Modal Elements
+        const modalCover = document.getElementById('modal-cover');
+        const modalTags = document.getElementById('modal-tags');
+        const modalTitle = document.getElementById('modal-title');
+        const calcServings = document.getElementById('calc-servings');
+        const calcMinus = document.getElementById('calc-minus');
+        const calcPlus = document.getElementById('calc-plus');
+        const ingredientsList = document.getElementById('ingredients-list');
+        const stepsList = document.getElementById('steps-list');
+
+        // 初始化
+        function init() {
+            renderRecipes(recipes);
+            setupCategoryFilter();
+            setupSearch();
+            setupModalControls();
+        }
+
+        // 動態渲染食譜卡片
+        function renderRecipes(items) {
+            recipeGrid.innerHTML = '';
+            if (items.length === 0) {
+                recipeGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-secondary);">沒有找到符合條件的食譜 🍳</div>';
+                return;
+            }
+
+            items.forEach(recipe => {
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img class="card-img" src="${recipe.image}" alt="${recipe.title}">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-tag">${recipe.tag}</span>
+                        <h3 class="card-title">${recipe.title}</h3>
+                        <div class="card-info">
+                            <div class="info-item">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                <span>${recipe.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                card.addEventListener('click', () => openModal(recipe));
+                recipeGrid.appendChild(card);
+            });
+        }
+
+        // 分類篩選
+        function setupCategoryFilter() {
+            categoriesContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('category-btn')) {
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+
+                    const category = e.target.dataset.category;
+                    const filtered = category === 'all' ? recipes : recipes.filter(r => r.category === category);
+                    renderRecipes(filtered);
+                }
+            });
+        }
+
+        // 搜尋功能
+        function setupSearch() {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                const filtered = recipes.filter(r => 
+                    r.title.toLowerCase().includes(query) || 
+                    r.tag.toLowerCase().includes(query) ||
+                    r.secondaryTags.some(t => t.toLowerCase().includes(query))
+                );
+                renderRecipes(filtered);
+            });
+        }
+
+        // 展開詳細 Modal
+        function openModal(recipe) {
+            currentRecipe = recipe;
+            currentServings = recipe.servings;
+
+            modalCover.src = recipe.image;
+            modalTitle.textContent = recipe.title;
+            
+            // 標籤
+            modalTags.innerHTML = '';
+            [recipe.tag, ...recipe.secondaryTags].forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'card-tag';
+                span.textContent = tag;
+                modalTags.appendChild(span);
+            });
+
+            updateServingsAndIngredients();
+
+            // 步驟
+            stepsList.innerHTML = '';
+            recipe.steps.forEach(step => {
+                const li = document.createElement('li');
+                li.className = 'step-item';
+                li.textContent = step;
+                stepsList.appendChild(li);
+            });
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 鎖定背景捲動
+        }
+
+        // 更新份量與食材顯示
+        function updateServingsAndIngredients() {
+            calcServings.textContent = `${currentServings} 人份`;
+            ingredientsList.innerHTML = '';
+
+            currentRecipe.ingredients.forEach(ing => {
+                // 按份量比例計算克數
+                const qty = ing.baseQty * currentServings;
+                // 如果是整數就保留整數，非整數則保留至小數點後兩位
+                const formattedQty = Number.isInteger(qty) ? qty : qty.toFixed(1).replace(/\.0$/, '');
+
+                const li = document.createElement('li');
+                li.className = 'ingredient-item';
+                
+                const nameAndUnit = ing.name.split(' (');
+                const unitText = nameAndUnit[1] ? ` (${nameAndUnit[1]}` : '';
+
+                li.innerHTML = `
+                    <input type="checkbox">
+                    <span>${nameAndUnit[0]} : ${formattedQty}${unitText.replace(')', '')}</span>
+                `;
+
+                // 備料打勾功能
+                li.addEventListener('click', (e) => {
+                    // 防止觸發 checkbox 的預設 click 重複切換
+                    if(e.target.tagName !== 'INPUT') {
+                        const checkbox = li.querySelector('input');
+                        checkbox.checked = !checkbox.checked;
+                    }
+                    li.classList.toggle('checked');
+                });
+                ingredientsList.appendChild(li);
+            });
+        }
+
+        // 彈出視窗開關
+        function setupModalControls() {
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // 計算機控制
+            calcMinus.addEventListener('click', () => {
+                if (currentServings > 1) {
+                    currentServings--;
+                    updateServingsAndIngredients();
+                }
+            });
+
+            calcPlus.addEventListener('click', () => {
+                currentServings++;
+                updateServingsAndIngredients();
+            });
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // 恢復背景捲動
+        }
+
+        // 平滑捲動至食譜區
+        function scrollToRecipes() {
+            document.getElementById('recipe-gallery').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 啟動
+        init();
+    </script>
+</body>
+</html>
